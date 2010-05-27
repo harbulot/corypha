@@ -1,0 +1,32 @@
+<#macro head title="Default title">
+<head>
+  <title>
+    ${title}
+  </title>
+  <link rel="stylesheet" type="text/css" href="${baseurl!}htdocs/core/css/core.css" />
+  <link rel="stylesheet" type="text/css" href="${baseurl!}htdocs/jquery-ui/css/custom-theme/jquery-ui.css" />
+  <script type="text/javascript" src="${baseurl!}htdocs/jquery/js/jquery.js">/**/</script>
+  <script type="text/javascript" src="${baseurl!}htdocs/jquery-ui/js/jquery-ui.js">/**/</script>
+  <#nested/>
+</head>
+</#macro>
+<#macro body>
+<body>
+    <div id="toptitlebox">
+        <h1><#if maintitle??>${maintitle}</#if></h1>
+    </div>
+    <div id="topmenu" class="menu"><#if topmenuitems??><#list topmenuitems as menuitem><span>${menuitem}</span></#list></#if></div>
+   
+	<div class="sidebar" id="sidebar">
+		<h2><#if sidemenutitle??>${sidemenutitle}</#if></h2>
+		<ul>
+		<#if sidemenuitems??>
+		<#list sidemenuitems as menuitem><li>${menuitem}</li></#list>
+		</#if>
+		</ul>
+	</div>
+	<div id="content">
+		<#nested/>
+	</div>
+</body>
+</#macro>

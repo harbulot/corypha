@@ -1,0 +1,8 @@
+<#import "layouttest.ftl.html" as layout><html>
+<@layout.head>
+<link href="test.css" rel="stylesheet" type="text/css" />
+</@layout.head>
+<@layout.body>
+<h1><#if username??>Hello ${username?html}</#if></h1>
+</@layout.body>
+</html>

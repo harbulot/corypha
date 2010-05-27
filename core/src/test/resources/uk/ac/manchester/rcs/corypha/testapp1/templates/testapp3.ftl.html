@@ -1,0 +1,60 @@
+<#import "corelayout.ftl.html" as layout>
+<html>
+<@layout.head "Test page">
+<!-- Stylesheets for dataTables. -->
+<style type="text/css" title="currentStyle">
+@import "${baseurl!}htdocs/jquery-datatables/css/demo_page.css";
+
+@import "${baseurl!}htdocs/jquery-datatables/css/demo_table.css";
+</style>
+<script type="text/javascript"
+	src="${baseurl!}htdocs/jquery-datatables/js/jquery.dataTables.min.js">/**/</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$.datepicker.setDefaults({ dateFormat: $.datepicker.RFC_822 });
+	$("#dateinput").datepicker();
+
+	$('#example').dataTable();
+});		
+</script>
+</@layout.head> <@layout.body>
+<h1><#if username??>Hello ${username?html}</#if></h1>
+<h2>jQuery UI example</h2>
+<form>Date: <input type="text" id="dateinput" /></form>
+
+<h2>jQuery DataTables example</h2>
+<table cellpadding="0" cellspacing="0" border="0" class="display"
+	id="example">
+	<thead>
+		<tr>
+			<th>ID</th>
+			<th>Owner</th>
+			<th>Type</th>
+			<th>Location</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>0001</td>
+			<td>Bruno</td>
+			<td>text/plain</td>
+			<td>file:///some/test/location</td>
+		</tr>
+		<tr>
+			<td>0002</td>
+			<td>Bruno</td>
+			<td>image/jpeg</td>
+			<td>file:///some/other/test/location/</td>
+		</tr>
+	</tbody>
+	<tfoot>
+		<tr>
+			<th>ID</th>
+			<th>Owner</th>
+			<th>Type</th>
+			<th>Location</th>
+		</tr>
+	</tfoot>
+</table>
+</@layout.body>
+</html>

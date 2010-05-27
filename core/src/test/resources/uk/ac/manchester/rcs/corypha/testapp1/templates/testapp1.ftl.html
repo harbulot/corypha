@@ -1,0 +1,7 @@
+<#import "corelayout.ftl.html" as layout><html>
+<@layout.head "Test page">
+</@layout.head>
+<@layout.body>
+<h1><#if username??>Hello ${username?html}</#if></h1>
+</@layout.body>
+</html>
