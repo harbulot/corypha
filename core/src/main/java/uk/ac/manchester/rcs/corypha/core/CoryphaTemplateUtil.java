@@ -59,7 +59,7 @@ public class CoryphaTemplateUtil {
             }
 
             String baseUrl = context.getParameters().getFirstValue(
-                    CoryphaRootApplication.BASE_URL_CTX_ATTRIBUTE);
+                    CoryphaRootApplication.BASE_URL_CTX_PARAM);
             Reference baseRef = null;
             if (baseUrl != null) {
                 baseRef = new Reference(baseUrl);

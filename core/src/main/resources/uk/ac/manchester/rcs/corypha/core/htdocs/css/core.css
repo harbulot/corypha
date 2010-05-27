@@ -48,6 +48,22 @@ body {
 	border-right: 1px solid #FFFFFF;
 }
 
+.sidebar {
+	font-size: 12px;
+	text-align: left;
+	color: #ECEEDE;
+}
+
+.sidebar a:link {
+	color: #ECEEDE;
+	text-decoration: none;
+}
+
+.sidebar a:visited {
+	color: #ECEEDE;
+	text-decoration: none;
+}
+
 #sidebar {
 	width: 200px;
 	position: absolute;

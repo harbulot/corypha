@@ -30,18 +30,28 @@ POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 package uk.ac.manchester.rcs.corypha.core;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.ini4j.Ini;
+import org.ini4j.InvalidFileFormatException;
+import org.ini4j.Profile.Section;
 import org.restlet.Application;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import freemarker.template.Configuration;
+import freemarker.template.TemplateModelException;
 
 /**
  * @author Bruno Harbulot
@@ -51,24 +61,76 @@ public class CoryphaRootApplication extends Application {
     private final static Logger LOGGER = LoggerFactory
             .getLogger(CoryphaRootApplication.class);
 
-    public final static String MODULE_CLASSES_CTX_ATTRIBUTE = "corypha_modules";
+    public final static String MODULE_CLASSES_CTX_PARAM = "corypha_modules";
 
     public final static String MENU_PROVIDERS_CTX_ATTRIBUTE = "corypha_menu_providers";
 
-    public final static String BASE_URL_CTX_ATTRIBUTE = "corypha_base_url";
+    public final static String BASE_URL_CTX_PARAM = "corypha_base_url";
+
+    public final static String CONFIG_INI_URL_CTX_PARAM = "corypha_config_ini_url";
 
     private final CopyOnWriteArrayList<CoryphaModule> modules = new CopyOnWriteArrayList<CoryphaModule>();
 
     private final CopyOnWriteArrayList<IMenuProvider> menuProviders = new CopyOnWriteArrayList<IMenuProvider>();
 
+    private void loadConfig(InputStream configIniInputStream)
+            throws InvalidFileFormatException, IOException,
+            TemplateModelException {
+        Ini ini = new Ini(configIniInputStream);
+
+        Configuration freemarkerConfig = CoryphaTemplateUtil
+                .getConfiguration(getContext());
+        freemarkerConfig.setSharedVariable("maintitle", ini.get("core",
+                "maintitle"));
+
+        Section iniSection = ini.get("sidenav");
+        CopyOnWriteArrayList<String> menuItemsHtml = new CopyOnWriteArrayList<String>();
+        for (String iniMenuItem : iniSection.getAll("item")) {
+            menuItemsHtml.add(iniMenuItem);
+        }
+        freemarkerConfig.setSharedVariable("sidemenuitems", menuItemsHtml);
+        freemarkerConfig.setSharedVariable("sidemenutitle", iniSection
+                .get("title"));
+    }
+
     @Override
     public Restlet createInboundRoot() {
+        String configIniUrl = getContext().getParameters().getFirstValue(
+                CONFIG_INI_URL_CTX_PARAM);
+        if (configIniUrl != null) {
+            try {
+                ClientResource configResource = new ClientResource(configIniUrl);
+                Representation entity = configResource.get();
+                if (configResource.getStatus().isSuccess() && (entity != null)) {
+                    loadConfig(entity.getStream());
+                } else {
+                    LOGGER.error(String.format(
+                            "Unable to load config file %s.", configIniUrl));
+                }
+            } catch (InvalidFileFormatException e) {
+                LOGGER
+                        .error(String.format(
+                                "Error while loading config from %s.",
+                                configIniUrl), e);
+            } catch (TemplateModelException e) {
+                LOGGER
+                        .error(String.format(
+                                "Error while loading config from %s.",
+                                configIniUrl), e);
+            } catch (IOException e) {
+                LOGGER
+                        .error(String.format(
+                                "Error while loading config from %s.",
+                                configIniUrl), e);
+            }
+        }
+
         final String baseUrl = getContext().getParameters().getFirstValue(
-                BASE_URL_CTX_ATTRIBUTE);
+                BASE_URL_CTX_PARAM);
         if (baseUrl == null) {
             LOGGER.warn(String.format(
                     "No base url defined (%s context parameter).",
-                    BASE_URL_CTX_ATTRIBUTE));
+                    BASE_URL_CTX_PARAM));
         } else {
             LOGGER.info(String.format("Using base reference: %s", baseUrl));
         }
@@ -77,7 +139,7 @@ public class CoryphaRootApplication extends Application {
             @Override
             public void handle(Request request, Response response) {
                 if (baseUrl == null) {
-                    getContext().getParameters().set(BASE_URL_CTX_ATTRIBUTE,
+                    getContext().getParameters().set(BASE_URL_CTX_PARAM,
                             request.getRootRef().toString() + "/");
                 }
                 super.handle(request, response);
@@ -88,7 +150,7 @@ public class CoryphaRootApplication extends Application {
         Map<String, CoryphaApplication> prefixToCmsApps = new HashMap<String, CoryphaApplication>();
 
         String[] cmsApplicationProviderClassNames = getContext()
-                .getParameters().getValuesArray(MODULE_CLASSES_CTX_ATTRIBUTE);
+                .getParameters().getValuesArray(MODULE_CLASSES_CTX_PARAM);
 
         getContext().getAttributes().put(MENU_PROVIDERS_CTX_ATTRIBUTE,
                 this.menuProviders);

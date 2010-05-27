@@ -59,13 +59,13 @@ public class CoryphaRootApplicationTest {
                 .createChildContext());
         Context cmsRootAppContext = cmsRootApplication.getContext();
         cmsRootAppContext.getParameters().add(
-                CoryphaRootApplication.MODULE_CLASSES_CTX_ATTRIBUTE,
+                CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
                 "uk.ac.manchester.rcs.corypha.testapp1.Module1");
         cmsRootAppContext.getParameters().add(
-                CoryphaRootApplication.MODULE_CLASSES_CTX_ATTRIBUTE,
+                CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
                 "uk.ac.manchester.rcs.corypha.testapp1.Module2");
         cmsRootAppContext.getParameters().add(
-                CoryphaRootApplication.MODULE_CLASSES_CTX_ATTRIBUTE,
+                CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
                 "uk.ac.manchester.rcs.corypha.testapp1.Module3");
 
         fillSampleTemplate(cmsRootAppContext);
