@@ -203,6 +203,17 @@ public class CoryphaRootApplication extends Application {
                 "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery/htdocs");
         htdocsRouter.attach("/jquery", htdocsJqueryDirectory);
 
+        InputStream hibernateCfgInputStream = AnnotationConfiguration.class
+                .getResourceAsStream("/hibernate.cfg.xml");
+        if (hibernateCfgInputStream != null) {
+            try {
+                hibernateCfgInputStream.close();
+            } catch (IOException e) {
+                LOGGER
+                        .error("Error while trying to close the hibernate.cfg.xml input stream");
+            }
+            this.hibernateConfiguration.configure();
+        }
         getContext().getAttributes().put(
                 HibernateFilter.HIBERNATE_CONFIGURATION_ATTRIBUTE,
                 this.hibernateConfiguration);

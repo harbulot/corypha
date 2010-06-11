@@ -33,13 +33,11 @@ package uk.ac.manchester.rcs.corypha.core;
 import java.sql.Types;
 
 import org.hibernate.dialect.DerbyDialect;
-import org.junit.Ignore;
 
 /**
  * @author Bruno Harbulot
  * 
  */
-@Ignore
 public class LobDerbyDialect extends DerbyDialect {
     public LobDerbyDialect() {
         registerColumnType(Types.CLOB, "clob");
