@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -56,19 +57,34 @@ public class HibernateFilter extends Filter {
     /**
      * Name of the attribute into which the Hibernate session is stored.
      */
+    public final static String HIBERNATE_CONFIGURATION_ATTRIBUTE = "uk.ac.manchester.rcs.corypha.hibernate.CONFIGURATION";
     public final static String HIBERNATE_FACTORY_ATTRIBUTE = "uk.ac.manchester.rcs.corypha.hibernate.FACTORY";
     public final static String HIBERNATE_SESSION_ATTRIBUTE = "uk.ac.manchester.rcs.corypha.hibernate.SESSION";
 
-    public HibernateFilter(Context context, Restlet next) {
+    private final String hibernateConfigurationAttribute;
+    private final String hibernateFactoryAttribute;
+    private final String hibernateSessionAttribute;
+
+    public HibernateFilter(Context context, Restlet next,
+            String hibernateConfigurationAttribute,
+            String hibernateFactoryAttribute, String hibernateSessionAttribute) {
         super(context, next);
+        this.hibernateConfigurationAttribute = hibernateConfigurationAttribute;
+        this.hibernateFactoryAttribute = hibernateFactoryAttribute;
+        this.hibernateSessionAttribute = hibernateSessionAttribute;
     }
 
-    public HibernateFilter() {
-        this(null, null);
+    public HibernateFilter(Context context, Restlet next) {
+        this(context, next, HIBERNATE_CONFIGURATION_ATTRIBUTE,
+                HIBERNATE_FACTORY_ATTRIBUTE, HIBERNATE_SESSION_ATTRIBUTE);
     }
 
     public HibernateFilter(Context context) {
         this(context, null);
+    }
+
+    public HibernateFilter() {
+        this(null, null);
     }
 
     /**
@@ -81,10 +97,18 @@ public class HibernateFilter extends Filter {
         int filterResponse = Filter.STOP;
 
         SessionFactory sessionFactory = (SessionFactory) getContext()
-                .getAttributes().get(HIBERNATE_FACTORY_ATTRIBUTE);
+                .getAttributes().get(hibernateFactoryAttribute);
         if (sessionFactory == null) {
-            sessionFactory = createSessionFactory();
-            getContext().getAttributes().put(HIBERNATE_FACTORY_ATTRIBUTE,
+            Configuration configuration = (Configuration) getContext()
+                    .getAttributes().get(hibernateConfigurationAttribute);
+            if (configuration == null) {
+                LOGGER
+                        .error("No Hibernate configuration available from the Hibernate filter.");
+                throw new RuntimeException(
+                        "No Hibernate configuration available from the Hibernate filter.");
+            }
+            sessionFactory = configuration.buildSessionFactory();
+            getContext().getAttributes().put(hibernateFactoryAttribute,
                     sessionFactory);
         }
 
@@ -97,7 +121,7 @@ public class HibernateFilter extends Filter {
                 throw t;
             }
             Session hibernateSession = (Session) request.getAttributes().get(
-                    HIBERNATE_SESSION_ATTRIBUTE);
+                    hibernateSessionAttribute);
 
             if (hibernateSession != null) {
                 hibernateTransaction = hibernateSession.getTransaction();
@@ -131,27 +155,27 @@ public class HibernateFilter extends Filter {
         return filterResponse;
     }
 
-    private static SessionFactory createSessionFactory() {
-        org.hibernate.cfg.Configuration config = new org.hibernate.cfg.Configuration()
-                .configure();
-        SessionFactory sf = config.buildSessionFactory();
-        return sf;
-    }
-
     public static Session getSession(Context context, Request request) {
         return getSession(context, request, true);
     }
 
     public static Session getSession(Context context, Request request,
             boolean beginTransaction) {
+        return getSession(context, request, beginTransaction,
+                HIBERNATE_FACTORY_ATTRIBUTE, HIBERNATE_SESSION_ATTRIBUTE);
+    }
+
+    public static Session getSession(Context context, Request request,
+            boolean beginTransaction, String hibernateFactoryAttribute,
+            String hibernateSessionAttribute) {
         Session hibernateSession = (Session) request.getAttributes().get(
-                HIBERNATE_SESSION_ATTRIBUTE);
+                hibernateSessionAttribute);
         if (hibernateSession == null) {
             SessionFactory sessionFactory = (SessionFactory) context
-                    .getAttributes().get(HIBERNATE_FACTORY_ATTRIBUTE);
+                    .getAttributes().get(hibernateFactoryAttribute);
             if (sessionFactory != null) {
                 hibernateSession = sessionFactory.openSession();
-                request.getAttributes().put(HIBERNATE_SESSION_ATTRIBUTE,
+                request.getAttributes().put(hibernateSessionAttribute,
                         hibernateSession);
                 Transaction transaction = hibernateSession.getTransaction();
                 transaction.setTimeout(5);

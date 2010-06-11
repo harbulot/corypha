@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.hibernate.cfg.AnnotationConfiguration;
 import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile.Section;
@@ -72,6 +73,8 @@ public class CoryphaRootApplication extends Application {
     private final CopyOnWriteArrayList<CoryphaModule> modules = new CopyOnWriteArrayList<CoryphaModule>();
 
     private final CopyOnWriteArrayList<IMenuProvider> menuProviders = new CopyOnWriteArrayList<IMenuProvider>();
+
+    private final AnnotationConfiguration hibernateConfiguration = new AnnotationConfiguration();
 
     private void loadConfig(InputStream configIniInputStream)
             throws InvalidFileFormatException, IOException,
@@ -200,6 +203,10 @@ public class CoryphaRootApplication extends Application {
                 "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery/htdocs");
         htdocsRouter.attach("/jquery", htdocsJqueryDirectory);
 
+        getContext().getAttributes().put(
+                HibernateFilter.HIBERNATE_CONFIGURATION_ATTRIBUTE,
+                this.hibernateConfiguration);
+
         return router;
     }
 
@@ -252,6 +259,11 @@ public class CoryphaRootApplication extends Application {
 
         if (cmsModule instanceof IMenuProvider) {
             this.menuProviders.add((IMenuProvider) cmsModule);
+        }
+
+        if (cmsModule instanceof IHibernateConfigurationContributor) {
+            ((IHibernateConfigurationContributor) cmsModule)
+                    .configureHibernate(this.hibernateConfiguration);
         }
     }
 }
