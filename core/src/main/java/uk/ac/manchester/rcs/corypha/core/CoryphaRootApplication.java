@@ -171,6 +171,58 @@ public class CoryphaRootApplication extends Application {
         loadJndiAttributes("attributes");
     }
 
+    private void configureHibernate() {
+        InputStream hibernateCfgInputStream = AnnotationConfiguration.class
+                .getResourceAsStream("/hibernate.cfg.xml");
+        if (hibernateCfgInputStream != null) {
+            try {
+                hibernateCfgInputStream.close();
+            } catch (IOException e) {
+                LOGGER
+                        .error("Error while trying to close the hibernate.cfg.xml input stream");
+            }
+            this.hibernateConfiguration.configure();
+        }
+
+        String prefix = "hibernate";
+        try {
+            javax.naming.Context ctx = new javax.naming.InitialContext();
+            javax.naming.Context env = (javax.naming.Context) ctx
+                    .lookup("java:comp/env");
+            NamingEnumeration<Binding> bindings = null;
+            try {
+                bindings = env.listBindings(prefix);
+            } catch (NameNotFoundException e) {
+                LOGGER.info("NameNotFoundException in configureHibernate().");
+            }
+            if (bindings != null) {
+                while (bindings.hasMore()) {
+                    Binding binding = bindings.next();
+                    Object object = binding.getObject();
+                    if (object != null) {
+                        this.hibernateConfiguration.setProperty(String.format(
+                                "hibernate.%s", binding.getName()), object
+                                .toString());
+                        LOGGER.info(String.format(
+                                "Setting hibernate property: %s = %s", binding
+                                        .getName(), object.toString()));
+                    } else {
+                        LOGGER.warn(String.format(
+                                "Null object for java:comp/env/%s/%s", prefix,
+                                binding.getName()));
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            LOGGER.error("NamingException in configureHibernate()).", e);
+            throw new RuntimeException(e);
+        }
+
+        getContext().getAttributes().put(
+                HibernateFilter.HIBERNATE_CONFIGURATION_ATTRIBUTE,
+                this.hibernateConfiguration);
+    }
+
     @Override
     public Restlet createInboundRoot() {
         loadJndiParameters();
@@ -286,20 +338,7 @@ public class CoryphaRootApplication extends Application {
                 "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery/htdocs");
         htdocsRouter.attach("/jquery", htdocsJqueryDirectory);
 
-        InputStream hibernateCfgInputStream = AnnotationConfiguration.class
-                .getResourceAsStream("/hibernate.cfg.xml");
-        if (hibernateCfgInputStream != null) {
-            try {
-                hibernateCfgInputStream.close();
-            } catch (IOException e) {
-                LOGGER
-                        .error("Error while trying to close the hibernate.cfg.xml input stream");
-            }
-            this.hibernateConfiguration.configure();
-        }
-        getContext().getAttributes().put(
-                HibernateFilter.HIBERNATE_CONFIGURATION_ATTRIBUTE,
-                this.hibernateConfiguration);
+        configureHibernate();
 
         return router;
     }
