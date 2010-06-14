@@ -36,6 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.naming.Binding;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
@@ -47,6 +52,7 @@ import org.restlet.Restlet;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
+import org.restlet.resource.ResourceException;
 import org.restlet.routing.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,8 +102,80 @@ public class CoryphaRootApplication extends Application {
                 .get("title"));
     }
 
+    private void loadJndiParameters(String prefix) {
+        try {
+            javax.naming.Context ctx = new javax.naming.InitialContext();
+            javax.naming.Context env = (javax.naming.Context) ctx
+                    .lookup("java:comp/env");
+            NamingEnumeration<Binding> bindings = null;
+            try {
+                bindings = env.listBindings(prefix);
+            } catch (NameNotFoundException e) {
+                LOGGER.info(String.format(
+                        "NameNotFoundException in loadJndiParameters(%s).",
+                        prefix));
+            }
+            if (bindings != null) {
+                while (bindings.hasMore()) {
+                    Binding binding = bindings.next();
+                    Object object = binding.getObject();
+                    if (object != null) {
+                        getContext().getParameters().add(binding.getName(),
+                                object.toString());
+                    } else {
+                        LOGGER.warn(String.format(
+                                "Null object for java:comp/env/%s/%s", prefix,
+                                binding.getName()));
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            LOGGER.error(String.format(
+                    "NamingException in loadJndiParameters(%s).", prefix), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void loadJndiParameters() {
+        loadJndiParameters("parameters");
+    }
+
+    private void loadJndiAttributes(String prefix) {
+        try {
+            javax.naming.Context ctx = new javax.naming.InitialContext();
+            javax.naming.Context env = (javax.naming.Context) ctx
+                    .lookup("java:comp/env");
+            NamingEnumeration<Binding> bindings = null;
+            try {
+                bindings = env.listBindings(prefix);
+            } catch (NameNotFoundException e) {
+                LOGGER.info(String.format(
+                        "NameNotFoundException in loadJndiAttributes(%s).",
+                        prefix));
+            }
+            if (bindings != null) {
+                while (bindings.hasMore()) {
+                    Binding binding = bindings.next();
+                    getContext().getAttributes().put(binding.getName(),
+                            binding.getObject());
+                }
+            }
+        } catch (NamingException e) {
+            LOGGER.error(String.format(
+                    "NamingException in loadJndiAttributes(%s).", prefix), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void loadJndiAttributes() {
+        loadJndiAttributes("attributes");
+    }
+
     @Override
     public Restlet createInboundRoot() {
+        loadJndiParameters();
+        loadJndiAttributes();
+
         String configIniUrl = getContext().getParameters().getFirstValue(
                 CONFIG_INI_URL_CTX_PARAM);
         if (configIniUrl != null) {
@@ -121,6 +199,11 @@ public class CoryphaRootApplication extends Application {
                                 "Error while loading config from %s.",
                                 configIniUrl), e);
             } catch (IOException e) {
+                LOGGER
+                        .error(String.format(
+                                "Error while loading config from %s.",
+                                configIniUrl), e);
+            } catch (ResourceException e) {
                 LOGGER
                         .error(String.format(
                                 "Error while loading config from %s.",
