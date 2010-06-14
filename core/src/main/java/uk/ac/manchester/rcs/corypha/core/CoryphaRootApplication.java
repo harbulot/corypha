@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.naming.Binding;
+import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -107,25 +107,28 @@ public class CoryphaRootApplication extends Application {
             javax.naming.Context ctx = new javax.naming.InitialContext();
             javax.naming.Context env = (javax.naming.Context) ctx
                     .lookup("java:comp/env");
-            NamingEnumeration<Binding> bindings = null;
+
+            NamingEnumeration<NameClassPair> nameClassPairs = null;
             try {
-                bindings = env.listBindings(prefix);
+                nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
                 LOGGER.info(String.format(
                         "NameNotFoundException in loadJndiParameters(%s).",
                         prefix));
             }
-            if (bindings != null) {
-                while (bindings.hasMore()) {
-                    Binding binding = bindings.next();
-                    Object object = binding.getObject();
+            if (nameClassPairs != null) {
+                while (nameClassPairs.hasMore()) {
+                    NameClassPair nameClassPair = nameClassPairs.next();
+                    StringBuffer sb = new StringBuffer(prefix);
+                    Object object = env.lookup(sb.append("/").append(
+                            nameClassPair.getName()).toString());
                     if (object != null) {
-                        getContext().getParameters().add(binding.getName(),
-                                object.toString());
+                        getContext().getParameters().add(
+                                nameClassPair.getName(), object.toString());
                     } else {
                         LOGGER.warn(String.format(
                                 "Null object for java:comp/env/%s/%s", prefix,
-                                binding.getName()));
+                                nameClassPair.getName()));
                     }
                 }
             }
@@ -145,19 +148,23 @@ public class CoryphaRootApplication extends Application {
             javax.naming.Context ctx = new javax.naming.InitialContext();
             javax.naming.Context env = (javax.naming.Context) ctx
                     .lookup("java:comp/env");
-            NamingEnumeration<Binding> bindings = null;
+
+            NamingEnumeration<NameClassPair> nameClassPairs = null;
             try {
-                bindings = env.listBindings(prefix);
+                nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
                 LOGGER.info(String.format(
                         "NameNotFoundException in loadJndiAttributes(%s).",
                         prefix));
             }
-            if (bindings != null) {
-                while (bindings.hasMore()) {
-                    Binding binding = bindings.next();
-                    getContext().getAttributes().put(binding.getName(),
-                            binding.getObject());
+            if (nameClassPairs != null) {
+                while (nameClassPairs.hasMore()) {
+                    NameClassPair nameClassPair = nameClassPairs.next();
+                    StringBuffer sb = new StringBuffer(prefix);
+                    Object object = env.lookup(sb.append("/").append(
+                            nameClassPair.getName()).toString());
+                    getContext().getAttributes().put(nameClassPair.getName(),
+                            object);
                 }
             }
         } catch (NamingException e) {
@@ -189,27 +196,30 @@ public class CoryphaRootApplication extends Application {
             javax.naming.Context ctx = new javax.naming.InitialContext();
             javax.naming.Context env = (javax.naming.Context) ctx
                     .lookup("java:comp/env");
-            NamingEnumeration<Binding> bindings = null;
+
+            NamingEnumeration<NameClassPair> nameClassPairs = null;
             try {
-                bindings = env.listBindings(prefix);
+                nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
                 LOGGER.info("NameNotFoundException in configureHibernate().");
             }
-            if (bindings != null) {
-                while (bindings.hasMore()) {
-                    Binding binding = bindings.next();
-                    Object object = binding.getObject();
+            if (nameClassPairs != null) {
+                while (nameClassPairs.hasMore()) {
+                    NameClassPair nameClassPair = nameClassPairs.next();
+                    StringBuffer sb = new StringBuffer(prefix);
+                    Object object = env.lookup(sb.append("/").append(
+                            nameClassPair.getName()).toString());
                     if (object != null) {
                         this.hibernateConfiguration.setProperty(String.format(
-                                "hibernate.%s", binding.getName()), object
-                                .toString());
+                                "hibernate.%s", nameClassPair.getName()),
+                                object.toString());
                         LOGGER.info(String.format(
-                                "Setting hibernate property: %s = %s", binding
-                                        .getName(), object.toString()));
+                                "Setting hibernate property: %s = %s",
+                                nameClassPair.getName(), object.toString()));
                     } else {
                         LOGGER.warn(String.format(
                                 "Null object for java:comp/env/%s/%s", prefix,
-                                binding.getName()));
+                                nameClassPair.getName()));
                     }
                 }
             }
