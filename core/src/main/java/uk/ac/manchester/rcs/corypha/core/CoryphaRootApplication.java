@@ -40,6 +40,7 @@ import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
 
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.ini4j.Ini;
@@ -132,6 +133,9 @@ public class CoryphaRootApplication extends Application {
                     }
                 }
             }
+        } catch (NoInitialContextException e) {
+            LOGGER
+                    .warn("No Initial context, unable to use loadJndiParameters().");
         } catch (NamingException e) {
             LOGGER.error(String.format(
                     "NamingException in loadJndiParameters(%s).", prefix), e);
@@ -167,6 +171,9 @@ public class CoryphaRootApplication extends Application {
                             object);
                 }
             }
+        } catch (NoInitialContextException e) {
+            LOGGER
+                    .warn("No Initial context, unable to use loadJndiAttributes().");
         } catch (NamingException e) {
             LOGGER.error(String.format(
                     "NamingException in loadJndiAttributes(%s).", prefix), e);
@@ -223,6 +230,9 @@ public class CoryphaRootApplication extends Application {
                     }
                 }
             }
+        } catch (NoInitialContextException e) {
+            LOGGER
+                    .warn("No Initial context, unable to use JNDI for configureHibernate().");
         } catch (NamingException e) {
             LOGGER.error("NamingException in configureHibernate()).", e);
             throw new RuntimeException(e);
