@@ -4,16 +4,15 @@
 	<parent>
 		<groupId>uk.ac.manchester.rcs.corypha</groupId>
 		<artifactId>corypha</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1</version>
 	</parent>
 
 	<groupId>uk.ac.manchester.rcs.corypha</groupId>
 	<artifactId>corypha-core</artifactId>
 	<name>Corypha :: Core</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<properties>
 		<build.compiler.fork>true</build.compiler.fork>
-		<restlet.version>2.0-RC4</restlet.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
