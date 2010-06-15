@@ -4,11 +4,11 @@
 	<groupId>uk.ac.manchester.rcs.corypha</groupId>
 	<artifactId>corypha</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>Corypha</name>
 	<url>http://www.rcs.manchester.ac.uk/</url>
 	<properties>
-		<corypha.version>0.0.1</corypha.version>
+		<corypha.version>0.0.2-SNAPSHOT</corypha.version>
 		<build.compiler.fork>true</build.compiler.fork>
 		<restlet.version>2.0-RC4</restlet.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
