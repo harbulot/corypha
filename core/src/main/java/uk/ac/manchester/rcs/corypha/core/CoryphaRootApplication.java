@@ -113,9 +113,11 @@ public class CoryphaRootApplication extends Application {
             try {
                 nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
-                LOGGER.info(String.format(
-                        "NameNotFoundException in loadJndiParameters(%s).",
-                        prefix));
+                LOGGER
+                        .info(String
+                                .format(
+                                        "NameNotFoundException in loadJndiParameters(%s) for %s.",
+                                        prefix, e.getRemainingName()));
             }
             if (nameClassPairs != null) {
                 while (nameClassPairs.hasMore()) {
@@ -136,9 +138,24 @@ public class CoryphaRootApplication extends Application {
         } catch (NoInitialContextException e) {
             LOGGER
                     .warn("No Initial context, unable to use loadJndiParameters().");
+        } catch (NameNotFoundException e) {
+            if ("env".equals(e.getRemainingName().toString())) {
+                LOGGER
+                        .warn("Unable to load java:comp/env, unable to use loadJndiParameters().");
+            } else {
+                LOGGER
+                        .error(
+                                String
+                                        .format(
+                                                "NameNotFoundException in loadJndiParameters(%s) for %s.",
+                                                prefix, e.getRemainingName()),
+                                e);
+                throw new RuntimeException(e);
+            }
         } catch (NamingException e) {
             LOGGER.error(String.format(
-                    "NamingException in loadJndiParameters(%s).", prefix), e);
+                    "NamingException in loadJndiParameters(%s) for %s.",
+                    prefix, e.getRemainingName()), e);
             throw new RuntimeException(e);
         }
     }
@@ -157,9 +174,11 @@ public class CoryphaRootApplication extends Application {
             try {
                 nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
-                LOGGER.info(String.format(
-                        "NameNotFoundException in loadJndiAttributes(%s).",
-                        prefix));
+                LOGGER
+                        .info(String
+                                .format(
+                                        "NameNotFoundException in loadJndiAttributes(%s) for %s.",
+                                        prefix, e.getRemainingName()));
             }
             if (nameClassPairs != null) {
                 while (nameClassPairs.hasMore()) {
@@ -174,9 +193,24 @@ public class CoryphaRootApplication extends Application {
         } catch (NoInitialContextException e) {
             LOGGER
                     .warn("No Initial context, unable to use loadJndiAttributes().");
+        } catch (NameNotFoundException e) {
+            if ("env".equals(e.getRemainingName().toString())) {
+                LOGGER
+                        .warn("Unable to load java:comp/env, unable to use loadJndiAttributes().");
+            } else {
+                LOGGER
+                        .error(
+                                String
+                                        .format(
+                                                "NameNotFoundException in loadJndiAttributes(%s) for %s.",
+                                                prefix, e.getRemainingName()),
+                                e);
+                throw new RuntimeException(e);
+            }
         } catch (NamingException e) {
             LOGGER.error(String.format(
-                    "NamingException in loadJndiAttributes(%s).", prefix), e);
+                    "NamingException in loadJndiAttributes(%s) for %s.",
+                    prefix, e.getRemainingName()), e);
             throw new RuntimeException(e);
         }
     }
@@ -233,6 +267,15 @@ public class CoryphaRootApplication extends Application {
         } catch (NoInitialContextException e) {
             LOGGER
                     .warn("No Initial context, unable to use JNDI for configureHibernate().");
+        } catch (NameNotFoundException e) {
+            if ("env".equals(e.getRemainingName().toString())) {
+                LOGGER
+                        .warn("Unable to load java:comp/env, unable to use configureHibernate().");
+            } else {
+                LOGGER.error("NameNotFoundException in configureHibernate()).",
+                        e);
+                throw new RuntimeException(e);
+            }
         } catch (NamingException e) {
             LOGGER.error("NamingException in configureHibernate()).", e);
             throw new RuntimeException(e);

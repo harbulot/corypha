@@ -28,79 +28,32 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------*/
-package uk.ac.manchester.rcs.corypha.testapp1;
+package uk.ac.manchester.rcs.corypha.testmod3;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.restlet.Restlet;
-import org.restlet.data.MediaType;
-import org.restlet.ext.freemarker.TemplateRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
-import org.restlet.routing.Router;
 
 import uk.ac.manchester.rcs.corypha.core.CoryphaApplication;
 import uk.ac.manchester.rcs.corypha.core.CoryphaModule;
-import uk.ac.manchester.rcs.corypha.core.CoryphaTemplateUtil;
 import uk.ac.manchester.rcs.corypha.core.IApplicationProvider;
 import uk.ac.manchester.rcs.corypha.core.IMenuProvider;
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.template.Configuration;
 
 /**
  * @author Bruno Harbulot
  * 
  */
-public class Module1 extends CoryphaModule implements IApplicationProvider,
+public class Module3 extends CoryphaModule implements IApplicationProvider,
         IMenuProvider {
-    public static class HelloWorldResource extends ServerResource {
-        @Get("html")
-        public Representation toHtml() {
-            Map<String, Object> data = new HashMap<String, Object>();
-            data.put("username", "World");
-
-            return new TemplateRepresentation("testapp1.ftl.html",
-                    CoryphaTemplateUtil.getConfiguration(getContext()), data,
-                    MediaType.TEXT_HTML);
-        }
-    }
-
-    public static class Application1 extends CoryphaApplication {
-        @Override
-        public String getAutoPrefix() {
-            return "application1/";
-        }
-
-        @Override
-        public Restlet createInboundRoot() {
-            Configuration cfg = CoryphaTemplateUtil.getConfiguration(getContext());
-            CoryphaTemplateUtil.addTemplateLoader(cfg, new ClassTemplateLoader(
-                    Module1.class, "templates"));
-
-            Router router = new Router(getContext());
-            router.attachDefault(HelloWorldResource.class);
-            return router;
-        }
-
-        @Override
-        public CoryphaApplication getApplication() {
-            return this;
-        }
-    }
-
-    private final Application1 application1 = new Application1();
+    private final Application3 application3 = new Application3();
     private final List<MenuItem> menuItems = Collections
             .unmodifiableList(Arrays.asList(new MenuItem[] { new MenuItem(
-                    "Hello World App", "application1/") }));
+                    "jQuery demo app", "application3/") }));
 
     @Override
     public CoryphaApplication getApplication() {
-        return application1;
+        return application3;
     }
 
     @Override

@@ -28,70 +28,28 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------*/
-package uk.ac.manchester.rcs.corypha.testapp1;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+package uk.ac.manchester.rcs.corypha.testmod2;
 
 import org.restlet.Restlet;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 import org.restlet.routing.Router;
 
 import uk.ac.manchester.rcs.corypha.core.CoryphaApplication;
-import uk.ac.manchester.rcs.corypha.core.CoryphaModule;
-import uk.ac.manchester.rcs.corypha.core.IApplicationProvider;
-import uk.ac.manchester.rcs.corypha.core.IMenuProvider;
 
-/**
- * @author Bruno Harbulot
- * 
- */
-public class Module2 extends CoryphaModule implements IApplicationProvider,
-        IMenuProvider {
-    public static class HelloWorldResource extends ServerResource {
-        @Get("txt")
-        public Representation toTxt() {
-            return new StringRepresentation("Hello World from Application 2!",
-                    MediaType.TEXT_PLAIN);
-        }
+public class Application2 extends CoryphaApplication {
+    @Override
+    public String getAutoPrefix() {
+        return "application2/";
     }
 
-    public class Application2 extends CoryphaApplication {
-        @Override
-        public String getAutoPrefix() {
-            return "application2/";
-        }
-
-        @Override
-        public Restlet createInboundRoot() {
-            Router router = new Router(getContext());
-            router.attachDefault(HelloWorldResource.class);
-            return router;
-        }
-
-        @Override
-        public CoryphaApplication getApplication() {
-            return this;
-        }
+    @Override
+    public Restlet createInboundRoot() {
+        Router router = new Router(getContext());
+        router.attachDefault(HelloWorldResource.class);
+        return router;
     }
-
-    private final Application2 application2 = new Application2();
-    private final List<MenuItem> menuItems = Collections
-            .unmodifiableList(Arrays.asList(new MenuItem[] { new MenuItem(
-                    "No Template App", "application2/") }));
 
     @Override
     public CoryphaApplication getApplication() {
-        return application2;
-    }
-
-    @Override
-    public List<MenuItem> getMenuItems() {
-        return menuItems;
+        return this;
     }
 }

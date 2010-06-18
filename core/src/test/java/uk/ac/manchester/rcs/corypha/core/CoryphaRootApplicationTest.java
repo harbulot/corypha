@@ -39,6 +39,10 @@ import org.restlet.data.Protocol;
 
 import uk.ac.manchester.rcs.corypha.core.CoryphaRootApplication;
 import uk.ac.manchester.rcs.corypha.core.CoryphaTemplateUtil;
+import uk.ac.manchester.rcs.corypha.testmod1.Module1;
+import uk.ac.manchester.rcs.corypha.testmod2.Module2;
+import uk.ac.manchester.rcs.corypha.testmod3.Module3;
+import uk.ac.manchester.rcs.corypha.testmod4.Module4;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateModelException;
@@ -60,13 +64,16 @@ public class CoryphaRootApplicationTest {
         Context cmsRootAppContext = cmsRootApplication.getContext();
         cmsRootAppContext.getParameters().add(
                 CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
-                "uk.ac.manchester.rcs.corypha.testapp1.Module1");
+                Module1.class.getName());
         cmsRootAppContext.getParameters().add(
                 CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
-                "uk.ac.manchester.rcs.corypha.testapp1.Module2");
+                Module2.class.getName());
         cmsRootAppContext.getParameters().add(
                 CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
-                "uk.ac.manchester.rcs.corypha.testapp1.Module3");
+                Module3.class.getName());
+        cmsRootAppContext.getParameters().add(
+                CoryphaRootApplication.MODULE_CLASSES_CTX_PARAM,
+                Module4.class.getName());
 
         fillSampleTemplate(cmsRootAppContext);
 

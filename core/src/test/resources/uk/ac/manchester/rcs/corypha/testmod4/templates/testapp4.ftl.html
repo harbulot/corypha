@@ -1,0 +1,42 @@
+<#import "corelayout.ftl.html" as layout>
+<html>
+<@layout.head "Test page">
+</@layout.head> <@layout.body>
+<h2>Data attached</h2>
+<#if items??>
+<ul>
+	<#list items as item>
+		<li><a href="${item_index}">Item: ${item.title?html!""}</a></li>
+	</#list>
+</ul>
+</#if> 
+<h2>Attach data</h2>
+<form enctype="multipart/form-data" method="post">
+<table cellpadding="0" cellspacing="0" border="0" class="display"
+	id="example">
+		<tr>
+			<th>Title:</th>
+			<td></td>
+			<td><input type="text" name="title" /></td>
+		</tr>
+		<tr>
+			<th>Content Type:</th>
+			<td></td>
+			<td><input type="text" name="contenttype" /></td>
+		</tr>
+		<tr>
+			<th>Text Content:</th>
+			<td><input type="radio" name="datatype" value="text"></td>
+			<td><input type="text" name="textcontent" /></td>
+		</tr>
+		<tr>
+			<th>File:
+			</td>
+			<td><input type="radio" name="datatype" value="file"></td>
+			<td><input type="file" name="attachedfile" /></td>
+		</tr>
+	</table>
+<input type="submit" />
+</form>
+</@layout.body>
+</html>
