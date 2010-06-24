@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.restlet.data.MediaType;
-import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
@@ -47,8 +46,7 @@ public class HelloWorldResource extends ServerResource {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("username", "World");
 
-        return new TemplateRepresentation("testapp1.ftl.html",
-                CoryphaTemplateUtil.getConfiguration(getContext()), data,
-                MediaType.TEXT_HTML);
+        return CoryphaTemplateUtil.buildTemplateRepresentation(getContext(),
+                getRequest(), "testapp1.ftl.html", data, MediaType.TEXT_HTML);
     }
 }

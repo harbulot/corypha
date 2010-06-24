@@ -75,6 +75,8 @@ public class CoryphaRootApplication extends Application {
 
     public final static String BASE_URL_CTX_PARAM = "corypha_base_url";
 
+    public final static String BASE_URL_REQUEST_ATTR = "corypha_base_url";
+
     public final static String CONFIG_INI_URL_CTX_PARAM = "corypha_config_ini_url";
 
     private final CopyOnWriteArrayList<CoryphaModule> modules = new CopyOnWriteArrayList<CoryphaModule>();
@@ -329,9 +331,11 @@ public class CoryphaRootApplication extends Application {
         final String baseUrl = getContext().getParameters().getFirstValue(
                 BASE_URL_CTX_PARAM);
         if (baseUrl == null) {
-            LOGGER.warn(String.format(
-                    "No base url defined (%s context parameter).",
-                    BASE_URL_CTX_PARAM));
+            LOGGER
+                    .info(String
+                            .format(
+                                    "No base url defined (%s context parameter): will be inferred from the requests.",
+                                    BASE_URL_CTX_PARAM));
         } else {
             LOGGER.info(String.format("Using base reference: %s", baseUrl));
         }
@@ -340,7 +344,7 @@ public class CoryphaRootApplication extends Application {
             @Override
             public void handle(Request request, Response response) {
                 if (baseUrl == null) {
-                    getContext().getParameters().set(BASE_URL_CTX_PARAM,
+                    request.getAttributes().put(BASE_URL_REQUEST_ATTR,
                             request.getRootRef().toString() + "/");
                 }
                 super.handle(request, response);

@@ -42,7 +42,6 @@ import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
-import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -57,9 +56,8 @@ public class RootResource extends ServerResource {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("items", getContext().getAttributes().get("list_of_things"));
 
-        return new TemplateRepresentation("testapp4.ftl.html",
-                CoryphaTemplateUtil.getConfiguration(getContext()), data,
-                MediaType.TEXT_HTML);
+        return CoryphaTemplateUtil.buildTemplateRepresentation(getContext(),
+                getRequest(), "testapp4.ftl.html", data, MediaType.TEXT_HTML);
     }
 
     @Post("html")

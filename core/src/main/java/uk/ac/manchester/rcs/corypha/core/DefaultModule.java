@@ -40,7 +40,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
-import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
@@ -53,15 +52,15 @@ import freemarker.template.Configuration;
  * @author Bruno Harbulot
  * 
  */
-public class DefaultModule extends CoryphaModule implements IApplicationProvider,
-        IMenuProvider {
+public class DefaultModule extends CoryphaModule implements
+        IApplicationProvider, IMenuProvider {
     public static class WelcomePageResource extends ServerResource {
         @Get("html")
         public Representation toHtml() {
             @SuppressWarnings("unchecked")
             Collection<IMenuProvider> menuProviders = (Collection<IMenuProvider>) getContext()
-                    .getAttributes().get(
-                            CoryphaRootApplication.MENU_PROVIDERS_CTX_ATTRIBUTE);
+                    .getAttributes()
+                    .get(CoryphaRootApplication.MENU_PROVIDERS_CTX_ATTRIBUTE);
 
             CopyOnWriteArrayList<String> menuItemsHtml = new CopyOnWriteArrayList<String>();
             if (menuProviders != null) {
@@ -75,8 +74,8 @@ public class DefaultModule extends CoryphaModule implements IApplicationProvider
             Map<String, Object> data = new HashMap<String, Object>();
             data.put("menuitems", menuItemsHtml);
 
-            return new TemplateRepresentation("welcome.ftl.html",
-                    CoryphaTemplateUtil.getConfiguration(getContext()), data,
+            return CoryphaTemplateUtil.buildTemplateRepresentation(
+                    getContext(), getRequest(), "welcome.ftl.html", data,
                     MediaType.TEXT_HTML);
         }
     }
@@ -89,7 +88,8 @@ public class DefaultModule extends CoryphaModule implements IApplicationProvider
 
         @Override
         public Restlet createInboundRoot() {
-            Configuration cfg = CoryphaTemplateUtil.getConfiguration(getContext());
+            Configuration cfg = CoryphaTemplateUtil
+                    .getConfiguration(getContext());
             CoryphaTemplateUtil.addTemplateLoader(cfg, new ClassTemplateLoader(
                     CoryphaRootApplication.class, "templates"));
 
