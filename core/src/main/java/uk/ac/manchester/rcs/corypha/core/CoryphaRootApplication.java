@@ -392,18 +392,18 @@ public class CoryphaRootApplication extends Application {
 
         // TODO remove hard-coding of path.
         Directory htdocsCoreDirectory = new Directory(getContext(),
-                "clap://thread/uk/ac/manchester/rcs/corypha/core/htdocs");
-        htdocsRouter.attach("/core", htdocsCoreDirectory);
+                "clap://thread/uk/ac/manchester/rcs/corypha/core/htdocs/");
+        htdocsRouter.attach("/core/", htdocsCoreDirectory);
         Directory htdocsJqueryDatatablesDirectory = new Directory(getContext(),
-                "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery-datatables/htdocs");
-        htdocsRouter.attach("/jquery-datatables",
+                "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery-datatables/htdocs/");
+        htdocsRouter.attach("/jquery-datatables/",
                 htdocsJqueryDatatablesDirectory);
         Directory htdocsJqueryUiDirectory = new Directory(getContext(),
-                "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery-ui/htdocs");
-        htdocsRouter.attach("/jquery-ui", htdocsJqueryUiDirectory);
+                "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery-ui/htdocs/");
+        htdocsRouter.attach("/jquery-ui/", htdocsJqueryUiDirectory);
         Directory htdocsJqueryDirectory = new Directory(getContext(),
-                "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery/htdocs");
-        htdocsRouter.attach("/jquery", htdocsJqueryDirectory);
+                "clap://thread/uk/ac/manchester/rcs/corypha/external/jquery/htdocs/");
+        htdocsRouter.attach("/jquery/", htdocsJqueryDirectory);
 
         configureHibernate();
 
