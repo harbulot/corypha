@@ -50,6 +50,7 @@ import org.restlet.Application;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.data.CharacterSet;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
@@ -292,6 +293,8 @@ public class CoryphaRootApplication extends Application {
     public Restlet createInboundRoot() {
         loadJndiParameters();
         loadJndiAttributes();
+
+        getMetadataService().setDefaultCharacterSet(CharacterSet.UTF_8);
 
         String configIniUrl = getContext().getParameters().getFirstValue(
                 CONFIG_INI_URL_CTX_PARAM);
