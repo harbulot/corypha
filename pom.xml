@@ -202,6 +202,13 @@
 				<version>1.6.2</version>
 			</dependency>
 
+			<!-- XML configuration modules -->
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-xml</artifactId>
+				<version>7.0.2.v20100331</version>
+			</dependency>
+
 			<!-- Restlet modules -->
 			<dependency>
 				<groupId>org.restlet.jse</groupId>
@@ -281,13 +288,6 @@
 				<groupId>javassist</groupId>
 				<artifactId>javassist</artifactId>
 				<version>3.9.0.GA</version>
-			</dependency>
-
-			<!-- Ini -->
-			<dependency>
-				<groupId>org.ini4j</groupId>
-				<artifactId>ini4j</artifactId>
-				<version>0.5.1</version>
 			</dependency>
 
 			<!-- SQL/JDBC modules -->

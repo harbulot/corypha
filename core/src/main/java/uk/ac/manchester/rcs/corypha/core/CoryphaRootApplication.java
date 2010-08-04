@@ -42,10 +42,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
 
+import org.eclipse.jetty.xml.XmlConfiguration;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.ini4j.Ini;
-import org.ini4j.InvalidFileFormatException;
-import org.ini4j.Profile.Section;
 import org.restlet.Application;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -60,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import freemarker.template.Configuration;
-import freemarker.template.TemplateModelException;
 
 /**
  * @author Bruno Harbulot
@@ -78,7 +75,7 @@ public class CoryphaRootApplication extends Application {
 
     public final static String BASE_URL_REQUEST_ATTR = "corypha_base_url";
 
-    public final static String CONFIG_INI_URL_CTX_PARAM = "corypha_config_ini_url";
+    public final static String TEMPLATE_CONFIG_XML_URL_CTX_PARAM = "corypha_template_config_xml_url";
 
     private final CopyOnWriteArrayList<CoryphaModule> modules = new CopyOnWriteArrayList<CoryphaModule>();
 
@@ -86,24 +83,12 @@ public class CoryphaRootApplication extends Application {
 
     private final AnnotationConfiguration hibernateConfiguration = new AnnotationConfiguration();
 
-    private void loadConfig(InputStream configIniInputStream)
-            throws InvalidFileFormatException, IOException,
-            TemplateModelException {
-        Ini ini = new Ini(configIniInputStream);
-
+    private void loadConfig(InputStream configIniInputStream) throws Exception {
         Configuration freemarkerConfig = CoryphaTemplateUtil
                 .getConfiguration(getContext());
-        freemarkerConfig.setSharedVariable("maintitle", ini.get("core",
-                "maintitle"));
 
-        Section iniSection = ini.get("sidenav");
-        CopyOnWriteArrayList<String> menuItemsHtml = new CopyOnWriteArrayList<String>();
-        for (String iniMenuItem : iniSection.getAll("item")) {
-            menuItemsHtml.add(iniMenuItem);
-        }
-        freemarkerConfig.setSharedVariable("sidemenuitems", menuItemsHtml);
-        freemarkerConfig.setSharedVariable("sidemenutitle", iniSection
-                .get("title"));
+        XmlConfiguration xmlConfig = new XmlConfiguration(configIniInputStream);
+        xmlConfig.configure(freemarkerConfig);
     }
 
     private void loadJndiParameters(String prefix) {
@@ -296,38 +281,40 @@ public class CoryphaRootApplication extends Application {
 
         getMetadataService().setDefaultCharacterSet(CharacterSet.UTF_8);
 
-        String configIniUrl = getContext().getParameters().getFirstValue(
-                CONFIG_INI_URL_CTX_PARAM);
-        if (configIniUrl != null) {
+        String configXmlUrl = getContext().getParameters().getFirstValue(
+                TEMPLATE_CONFIG_XML_URL_CTX_PARAM, "clap://thread/corypha-template.cfg.xml");
+        if (configXmlUrl != null) {
             try {
-                ClientResource configResource = new ClientResource(configIniUrl);
+                ClientResource configResource = new ClientResource(configXmlUrl);
                 Representation entity = configResource.get();
-                if (configResource.getStatus().isSuccess() && (entity != null)) {
-                    loadConfig(entity.getStream());
-                } else {
-                    LOGGER.error(String.format(
-                            "Unable to load config file %s.", configIniUrl));
+                try {
+                    if (configResource.getStatus().isSuccess()
+                            && (entity != null)) {
+                        loadConfig(entity.getStream());
+                    } else {
+                        LOGGER
+                                .error(String.format(
+                                        "Unable to load config file %s.",
+                                        configXmlUrl));
+                    }
+                } finally {
+                    entity.release();
                 }
-            } catch (InvalidFileFormatException e) {
-                LOGGER
-                        .error(String.format(
-                                "Error while loading config from %s.",
-                                configIniUrl), e);
-            } catch (TemplateModelException e) {
-                LOGGER
-                        .error(String.format(
-                                "Error while loading config from %s.",
-                                configIniUrl), e);
             } catch (IOException e) {
                 LOGGER
                         .error(String.format(
                                 "Error while loading config from %s.",
-                                configIniUrl), e);
+                                configXmlUrl), e);
             } catch (ResourceException e) {
                 LOGGER
                         .error(String.format(
                                 "Error while loading config from %s.",
-                                configIniUrl), e);
+                                configXmlUrl), e);
+            } catch (Exception e) {
+                LOGGER
+                        .error(String.format(
+                                "Error while loading config from %s.",
+                                configXmlUrl), e);
             }
         }
 
