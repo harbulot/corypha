@@ -1,0 +1,26 @@
+<#import "corelayout.ftl.html" as layout><html>
+<@layout.head "About me">
+</@layout.head>
+<@layout.body>
+<h1>About me!</h1>
+<h2>User</h2>
+${user?html}
+<h2>Roles</h2>
+<ul>
+<#list roles as role>
+    <li>${role?html}</li>
+</#list>
+</ul>
+<h2>Other principals</h2>
+<ul>
+<#list principals as principal>
+    <li>${principal.name?html}:
+        <ul>
+            <li>${principal.class?html}</li>
+            <li>${principal?html}</li>
+        </ul>
+    </li>
+</#list>
+</ul>
+</@layout.body>
+</html>
