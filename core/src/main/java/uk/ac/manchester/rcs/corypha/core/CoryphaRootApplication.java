@@ -52,10 +52,12 @@ import org.restlet.data.CharacterSet;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
-import org.restlet.resource.ResourceException;
 import org.restlet.routing.Router;
+import org.restlet.security.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.manchester.rcs.corypha.authn.AuthenticatorConfig;
 
 import freemarker.template.Configuration;
 
@@ -77,18 +79,76 @@ public class CoryphaRootApplication extends Application {
 
     public final static String TEMPLATE_CONFIG_XML_URL_CTX_PARAM = "corypha_template_config_xml_url";
 
+    public final static String AUTHN_CONFIG_XML_URL_CTX_PARAM = "corypha_authn_config_xml_url";
+
     private final CopyOnWriteArrayList<CoryphaModule> modules = new CopyOnWriteArrayList<CoryphaModule>();
 
     private final CopyOnWriteArrayList<IMenuProvider> menuProviders = new CopyOnWriteArrayList<IMenuProvider>();
 
     private final AnnotationConfiguration hibernateConfiguration = new AnnotationConfiguration();
 
-    private void loadConfig(InputStream configIniInputStream) throws Exception {
-        Configuration freemarkerConfig = CoryphaTemplateUtil
-                .getConfiguration(getContext());
+    private void loadTemplateConfig(String templateConfigXmlUrl) {
+        if (templateConfigXmlUrl != null) {
+            try {
+                ClientResource configResource = new ClientResource(
+                        templateConfigXmlUrl);
+                Representation entity = configResource.get();
+                try {
+                    if (configResource.getStatus().isSuccess()
+                            && (entity != null)) {
+                        Configuration freemarkerConfig = CoryphaTemplateUtil
+                                .getConfiguration(getContext());
 
-        XmlConfiguration xmlConfig = new XmlConfiguration(configIniInputStream);
-        xmlConfig.configure(freemarkerConfig);
+                        XmlConfiguration xmlConfig = new XmlConfiguration(
+                                entity.getStream());
+                        xmlConfig.configure(freemarkerConfig);
+                    } else {
+                        LOGGER.error(String.format(
+                                "Unable to load config file %s.",
+                                templateConfigXmlUrl));
+                    }
+                } finally {
+                    entity.release();
+                }
+            } catch (Exception e) {
+                LOGGER.error(String.format(
+                        "Error while loading config from %s.",
+                        templateConfigXmlUrl), e);
+            }
+        }
+    }
+
+    private Authenticator loadAuthnConfig(String authnConfigXmlUrl) {
+        if (authnConfigXmlUrl != null) {
+            try {
+                ClientResource configResource = new ClientResource(
+                        authnConfigXmlUrl);
+                Representation entity = configResource.get();
+                try {
+                    if (configResource.getStatus().isSuccess()
+                            && (entity != null)) {
+
+                        XmlConfiguration xmlConfig = new XmlConfiguration(
+                                entity.getStream());
+                        AuthenticatorConfig authnConfig = new AuthenticatorConfig(
+                                getContext());
+                        xmlConfig.configure(authnConfig);
+                        return authnConfig.getAuthenticator();
+                    } else {
+                        LOGGER.error(String.format(
+                                "Unable to load config file %s.",
+                                authnConfigXmlUrl));
+                    }
+                } finally {
+                    entity.release();
+                }
+            } catch (Exception e) {
+                LOGGER.error(String.format(
+                        "Error while loading config from %s.",
+                        authnConfigXmlUrl), e);
+            }
+        }
+        return null;
     }
 
     private void loadJndiParameters(String prefix) {
@@ -101,18 +161,16 @@ public class CoryphaRootApplication extends Application {
             try {
                 nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
-                LOGGER
-                        .info(String
-                                .format(
-                                        "NameNotFoundException in loadJndiParameters(%s) for %s.",
-                                        prefix, e.getRemainingName()));
+                LOGGER.info(String
+                        .format("NameNotFoundException in loadJndiParameters(%s) for %s.",
+                                prefix, e.getRemainingName()));
             }
             if (nameClassPairs != null) {
                 while (nameClassPairs.hasMore()) {
                     NameClassPair nameClassPair = nameClassPairs.next();
                     StringBuffer sb = new StringBuffer(prefix);
-                    Object object = env.lookup(sb.append("/").append(
-                            nameClassPair.getName()).toString());
+                    Object object = env.lookup(sb.append("/")
+                            .append(nameClassPair.getName()).toString());
                     if (object != null) {
                         getContext().getParameters().add(
                                 nameClassPair.getName(), object.toString());
@@ -124,20 +182,15 @@ public class CoryphaRootApplication extends Application {
                 }
             }
         } catch (NoInitialContextException e) {
-            LOGGER
-                    .warn("No Initial context, unable to use loadJndiParameters().");
+            LOGGER.warn("No Initial context, unable to use loadJndiParameters().");
         } catch (NameNotFoundException e) {
             if ("env".equals(e.getRemainingName().toString())) {
-                LOGGER
-                        .warn("Unable to load java:comp/env, unable to use loadJndiParameters().");
+                LOGGER.warn("Unable to load java:comp/env, unable to use loadJndiParameters().");
             } else {
-                LOGGER
-                        .error(
-                                String
-                                        .format(
-                                                "NameNotFoundException in loadJndiParameters(%s) for %s.",
-                                                prefix, e.getRemainingName()),
-                                e);
+                LOGGER.error(
+                        String.format(
+                                "NameNotFoundException in loadJndiParameters(%s) for %s.",
+                                prefix, e.getRemainingName()), e);
                 throw new RuntimeException(e);
             }
         } catch (NamingException e) {
@@ -162,37 +215,30 @@ public class CoryphaRootApplication extends Application {
             try {
                 nameClassPairs = env.list(prefix);
             } catch (NameNotFoundException e) {
-                LOGGER
-                        .info(String
-                                .format(
-                                        "NameNotFoundException in loadJndiAttributes(%s) for %s.",
-                                        prefix, e.getRemainingName()));
+                LOGGER.info(String
+                        .format("NameNotFoundException in loadJndiAttributes(%s) for %s.",
+                                prefix, e.getRemainingName()));
             }
             if (nameClassPairs != null) {
                 while (nameClassPairs.hasMore()) {
                     NameClassPair nameClassPair = nameClassPairs.next();
                     StringBuffer sb = new StringBuffer(prefix);
-                    Object object = env.lookup(sb.append("/").append(
-                            nameClassPair.getName()).toString());
+                    Object object = env.lookup(sb.append("/")
+                            .append(nameClassPair.getName()).toString());
                     getContext().getAttributes().put(nameClassPair.getName(),
                             object);
                 }
             }
         } catch (NoInitialContextException e) {
-            LOGGER
-                    .warn("No Initial context, unable to use loadJndiAttributes().");
+            LOGGER.warn("No Initial context, unable to use loadJndiAttributes().");
         } catch (NameNotFoundException e) {
             if ("env".equals(e.getRemainingName().toString())) {
-                LOGGER
-                        .warn("Unable to load java:comp/env, unable to use loadJndiAttributes().");
+                LOGGER.warn("Unable to load java:comp/env, unable to use loadJndiAttributes().");
             } else {
-                LOGGER
-                        .error(
-                                String
-                                        .format(
-                                                "NameNotFoundException in loadJndiAttributes(%s) for %s.",
-                                                prefix, e.getRemainingName()),
-                                e);
+                LOGGER.error(
+                        String.format(
+                                "NameNotFoundException in loadJndiAttributes(%s) for %s.",
+                                prefix, e.getRemainingName()), e);
                 throw new RuntimeException(e);
             }
         } catch (NamingException e) {
@@ -214,8 +260,7 @@ public class CoryphaRootApplication extends Application {
             try {
                 hibernateCfgInputStream.close();
             } catch (IOException e) {
-                LOGGER
-                        .error("Error while trying to close the hibernate.cfg.xml input stream");
+                LOGGER.error("Error while trying to close the hibernate.cfg.xml input stream");
             }
             this.hibernateConfiguration.configure();
         }
@@ -236,11 +281,12 @@ public class CoryphaRootApplication extends Application {
                 while (nameClassPairs.hasMore()) {
                     NameClassPair nameClassPair = nameClassPairs.next();
                     StringBuffer sb = new StringBuffer(prefix);
-                    Object object = env.lookup(sb.append("/").append(
-                            nameClassPair.getName()).toString());
+                    Object object = env.lookup(sb.append("/")
+                            .append(nameClassPair.getName()).toString());
                     if (object != null) {
-                        this.hibernateConfiguration.setProperty(String.format(
-                                "hibernate.%s", nameClassPair.getName()),
+                        this.hibernateConfiguration.setProperty(
+                                String.format("hibernate.%s",
+                                        nameClassPair.getName()),
                                 object.toString());
                         LOGGER.info(String.format(
                                 "Setting hibernate property: %s = %s",
@@ -253,12 +299,10 @@ public class CoryphaRootApplication extends Application {
                 }
             }
         } catch (NoInitialContextException e) {
-            LOGGER
-                    .warn("No Initial context, unable to use JNDI for configureHibernate().");
+            LOGGER.warn("No Initial context, unable to use JNDI for configureHibernate().");
         } catch (NameNotFoundException e) {
             if ("env".equals(e.getRemainingName().toString())) {
-                LOGGER
-                        .warn("Unable to load java:comp/env, unable to use configureHibernate().");
+                LOGGER.warn("Unable to load java:comp/env, unable to use configureHibernate().");
             } else {
                 LOGGER.error("NameNotFoundException in configureHibernate()).",
                         e);
@@ -281,51 +325,22 @@ public class CoryphaRootApplication extends Application {
 
         getMetadataService().setDefaultCharacterSet(CharacterSet.UTF_8);
 
-        String configXmlUrl = getContext().getParameters().getFirstValue(
-                TEMPLATE_CONFIG_XML_URL_CTX_PARAM, "clap://thread/corypha-template.cfg.xml");
-        if (configXmlUrl != null) {
-            try {
-                ClientResource configResource = new ClientResource(configXmlUrl);
-                Representation entity = configResource.get();
-                try {
-                    if (configResource.getStatus().isSuccess()
-                            && (entity != null)) {
-                        loadConfig(entity.getStream());
-                    } else {
-                        LOGGER
-                                .error(String.format(
-                                        "Unable to load config file %s.",
-                                        configXmlUrl));
-                    }
-                } finally {
-                    entity.release();
-                }
-            } catch (IOException e) {
-                LOGGER
-                        .error(String.format(
-                                "Error while loading config from %s.",
-                                configXmlUrl), e);
-            } catch (ResourceException e) {
-                LOGGER
-                        .error(String.format(
-                                "Error while loading config from %s.",
-                                configXmlUrl), e);
-            } catch (Exception e) {
-                LOGGER
-                        .error(String.format(
-                                "Error while loading config from %s.",
-                                configXmlUrl), e);
-            }
-        }
+        String templateConfigXmlUrl = getContext().getParameters()
+                .getFirstValue(TEMPLATE_CONFIG_XML_URL_CTX_PARAM,
+                        "clap://thread/corypha-template.cfg.xml");
+        loadTemplateConfig(templateConfigXmlUrl);
+
+        String authnConfigXmlUrl = getContext().getParameters().getFirstValue(
+                AUTHN_CONFIG_XML_URL_CTX_PARAM,
+                "clap://thread/corypha-authn.cfg.xml");
+        Authenticator authenticator = loadAuthnConfig(authnConfigXmlUrl);
 
         final String baseUrl = getContext().getParameters().getFirstValue(
                 BASE_URL_CTX_PARAM);
         if (baseUrl == null) {
-            LOGGER
-                    .info(String
-                            .format(
-                                    "No base url defined (%s context parameter): will be inferred from the requests.",
-                                    BASE_URL_CTX_PARAM));
+            LOGGER.info(String
+                    .format("No base url defined (%s context parameter): will be inferred from the requests.",
+                            BASE_URL_CTX_PARAM));
         } else {
             LOGGER.info(String.format("Using base reference: %s", baseUrl));
         }
@@ -397,7 +412,12 @@ public class CoryphaRootApplication extends Application {
 
         configureHibernate();
 
-        return router;
+        if (authenticator != null) {
+            authenticator.setNext(router);
+            return authenticator;
+        } else {
+            return router;
+        }
     }
 
     /**
@@ -434,11 +454,9 @@ public class CoryphaRootApplication extends Application {
                             "Loaded application from %s at prefix %s.",
                             cmsModule.getClass(), autoPrefix));
                 } else {
-                    LOGGER
-                            .error(String
-                                    .format(
-                                            "Cannot load application from %s: prefix %s already in use.",
-                                            cmsModule.getClass(), autoPrefix));
+                    LOGGER.error(String
+                            .format("Cannot load application from %s: prefix %s already in use.",
+                                    cmsModule.getClass(), autoPrefix));
                 }
             } else {
                 LOGGER.warn(String.format(
