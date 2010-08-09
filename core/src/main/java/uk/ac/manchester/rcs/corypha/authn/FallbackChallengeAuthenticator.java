@@ -30,40 +30,38 @@ POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------*/
 package uk.ac.manchester.rcs.corypha.authn;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
-import org.restlet.security.Authenticator;
+import org.restlet.data.ChallengeScheme;
+import org.restlet.security.ChallengeAuthenticator;
+import org.restlet.security.Verifier;
 
-public class ChainedAuthenticator extends Authenticator {
-    private final CopyOnWriteArrayList<Authenticator> authenticatorList = new CopyOnWriteArrayList<Authenticator>();
+public class FallbackChallengeAuthenticator extends ChallengeAuthenticator {
 
-    public ChainedAuthenticator(Context context) {
-        super(context);
+    public FallbackChallengeAuthenticator(Context context, boolean optional,
+            ChallengeScheme challengeScheme, String realm, Verifier verifier) {
+        super(context, optional, challengeScheme, realm, verifier);
     }
 
-    public ChainedAuthenticator(Context context, boolean optional) {
-        super(context, optional);
+    public FallbackChallengeAuthenticator(Context context, boolean optional,
+            ChallengeScheme challengeScheme, String realm) {
+        super(context, optional, challengeScheme, realm);
     }
 
-    public void clearAuthenticators() {
-        this.authenticatorList.clear();
-    }
+    public FallbackChallengeAuthenticator(Context context,
+            ChallengeScheme challengeScheme, String realm) {
+        super(context, challengeScheme, realm);
 
-    public void addAuthenticator(Authenticator authenticator) {
-        this.authenticatorList.add(authenticator);
     }
 
     @Override
-    protected boolean authenticate(Request request, Response response) {
-        for (Authenticator authenticator : this.authenticatorList) {
-            authenticator.handle(request, response);
-            if (request.getClientInfo().getPrincipals().size() > 0) {
-                return true;
-            }
+    protected int beforeHandle(Request request, Response response) {
+        if (request.getClientInfo() != null
+                && request.getClientInfo().getUser() != null) {
+            return CONTINUE;
+        } else {
+            return super.beforeHandle(request, response);
         }
-        return false;
     }
 }

@@ -52,6 +52,7 @@ import org.restlet.data.CharacterSet;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
+import org.restlet.routing.Filter;
 import org.restlet.routing.Router;
 import org.restlet.security.Authenticator;
 import org.slf4j.Logger;
@@ -413,7 +414,16 @@ public class CoryphaRootApplication extends Application {
         configureHibernate();
 
         if (authenticator != null) {
-            authenticator.setNext(router);
+            Filter lastAuthenticator = authenticator;
+            while (lastAuthenticator.getNext() != null) {
+                if (lastAuthenticator.getNext() instanceof Filter) {
+                    lastAuthenticator = (Filter) lastAuthenticator.getNext();
+                } else {
+                    LOGGER.error("The authenticator chain contains Restlets that are not Filters: "
+                            + lastAuthenticator.getClass());
+                }
+            }
+            lastAuthenticator.setNext(router);
             return authenticator;
         } else {
             return router;
