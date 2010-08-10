@@ -1,0 +1,152 @@
+<?xml version="1.0"  encoding="ISO-8859-1"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+<Configure class="org.restlet.Component" id="component">
+	<Get id="serverProtocol" class="org.restlet.data.Protocol" name="HTTPS" />
+
+	<Get name="servers">
+		<Call id="server" name="add">
+			<Arg>
+				<Get class="org.restlet.data.Protocol" name="HTTPS" />
+			</Arg>
+			<Arg type="integer">8183</Arg>
+		</Call>
+	</Get>
+
+	<Get name="clients">
+		<Call name="add">
+			<Arg>
+				<Get class="org.restlet.data.Protocol" name="FILE" />
+			</Arg>
+		</Call>
+		<Call name="add">
+			<Arg>
+				<Get class="org.restlet.data.Protocol" name="CLAP" />
+			</Arg>
+		</Call>
+	</Get>
+
+	<!-- Use the KeyStoreLoader to load the key store into "keystore" -->
+	<New class="org.jsslutils.keystores.KeyStoreLoader">
+		<Set name="keyStoreType">PKCS12</Set>
+		<Set name="keyStorePath">../etc/keystore.p12</Set>
+		<Set name="keyStorePassword">password</Set>
+		<Call id="keystore" name="loadKeyStore">
+			<Arg />
+		</Call>
+	</New>
+
+	<!-- Use the KeyStoreLoader to load the trust store into "truststore" -->
+	<New class="org.jsslutils.keystores.KeyStoreLoader">
+		<Set name="keyStoreType">JKS</Set>
+		<Set name="keyStorePath">../etc/truststore.jks</Set>
+		<Set name="keyStorePassword">ABCDEF</Set>
+		<Call id="truststore" name="loadKeyStore">
+			<Arg />
+		</Call>
+	</New>
+
+	<!-- Creates a PKIX-based SSLContext into "context" -->
+	<New id="sslContextFactory" class="org.jsslutils.sslcontext.PKIXSSLContextFactory">
+		<Arg>
+			<Ref id="keystore" />
+		</Arg>
+		<Arg>password</Arg>
+		<Arg>
+			<Ref id="truststore" />
+		</Arg>
+		<!-- Adds remote CRLs -->
+		<Call name="addCrl">
+			<Arg>http://ca.grid-support.ac.uk/pub/crl/root-crl.crl</Arg>
+		</Call>
+		<Call name="addCrl">
+			<Arg>http://ca.grid-support.ac.uk/pub/crl/ca-crl.crl</Arg>
+		</Call>
+		<Set name="trustManagerWrapper">
+			<New class="org.jsslutils.extra.gsi.GsiWrappingTrustManager$Wrapper" />
+		</Set>
+	</New>
+
+
+	<Ref id="server">
+		<Get name="context">
+			<Get name="parameters">
+				<Call name="add">
+					<Arg>wantClientAuthentication</Arg>
+					<Arg>true</Arg>
+				</Call>
+			</Get>
+			<Get name="attributes">
+				<Call name="add">
+					<Arg>sslContextFactory</Arg>
+					<Arg>
+						<New class="org.restlet.ext.ssl.JsslutilsSslContextFactory.class">
+							<Arg>
+								<Ref id="sslContextFactory" />
+							</Arg>
+						</New>
+					</Arg>
+				</Call>
+			</Get>
+		</Get>
+	</Ref>
+
+	<Get name="context">
+		<Call id="rootAppContext" name="createChildContext" />
+	</Get>
+
+	<New id="rootApp" class="uk.ac.manchester.rcs.corypha.core.CoryphaRootApplication">
+		<Set name="context">
+			<Ref id="rootAppContext" />
+		</Set>
+	</New>
+
+
+	<Ref id="rootAppContext">
+		<Get name="parameters">
+			<Call name="add">
+				<Arg>oracle11g_workaround</Arg>
+				<Arg>true</Arg>
+			</Call>
+			<Call name="add">
+				<Arg>
+					<Get class="uk.ac.manchester.rcs.corypha.core.CoryphaRootApplication"
+						name="MODULE_CLASSES_CTX_PARAM" />
+				</Arg>
+				<Arg>somepackage.InitialHibernateConfigModule
+				</Arg>
+			</Call>
+			<Call name="add">
+				<Arg>
+					<Get class="uk.ac.manchester.rcs.corypha.core.CoryphaRootApplication"
+						name="MODULE_CLASSES_CTX_PARAM" />
+				</Arg>
+				<Arg>somepackage.SomeModule1
+				</Arg>
+			</Call>
+			<Call name="add">
+				<Arg>
+					<Get class="uk.ac.manchester.rcs.corypha.core.CoryphaRootApplication"
+						name="MODULE_CLASSES_CTX_PARAM" />
+				</Arg>
+				<Arg>somepackage.SomeModule2
+				</Arg>
+			</Call>
+			<Call name="add">
+				<Arg>
+					<Get class="uk.ac.manchester.rcs.corypha.core.CoryphaRootApplication"
+						name="MODULE_CLASSES_CTX_PARAM" />
+				</Arg>
+				<Arg>uk.ac.manchester.rcs.corypha.core.AboutMeModule</Arg>
+			</Call>
+		</Get>
+	</Ref>
+
+
+	<Get name="defaultHost">
+		<Call name="attachDefault">
+			<Arg>
+				<Ref id="rootApp" />
+			</Arg>
+		</Call>
+	</Get>
+</Configure>
