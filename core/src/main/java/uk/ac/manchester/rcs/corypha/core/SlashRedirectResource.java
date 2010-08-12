@@ -35,6 +35,8 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 /**
+ * Resources that redirects to the URI with an extra trailing slash.
+ * 
  * @author Bruno Harbulot
  * 
  */

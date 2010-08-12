@@ -40,10 +40,14 @@ import javax.security.auth.x500.X500Principal;
 import org.restlet.Context;
 
 /**
- * Authenticator based on the SSL client certificate. If a client certificate is
- * presented, it adds the Principal of its subject to the list of principals in
- * the request's ClientInfo. It also sets the user to be a new User based on
- * this Principal.
+ * Authenticator based on the SSL client certificate, allowing for proxy
+ * certificates. If a client certificate is presented, it adds the Principal of
+ * its subject to the list of principals in the request's ClientInfo. It also
+ * sets the user to be a new User based on this Principal.
+ * 
+ * It behaves simirly to {@link ClientCertificateAuthenticator}, but uses the DN
+ * of the end-entity certificate (which is delegated by proxy) rather than the
+ * DN of the proxy itself.
  * 
  * {@link #getPrincipal(List)} and {@link #getUser(Principal)} can be overridden
  * to change the default behaviour.
@@ -63,7 +67,8 @@ public class ClientProxyCertificateAuthenticator extends
     /**
      * Extracts the Principal of the subject to use from a chain of certificate.
      * By default, this is the X500Principal of the subject of the first
-     * certificate in the chain.
+     * end-entity certificate in the chain (the first one signed by a CA, and
+     * not a proxy).
      * 
      * @see X509Certificate
      * @see X500Principal
@@ -72,6 +77,7 @@ public class ClientProxyCertificateAuthenticator extends
      * @return Principal of the client certificate or null if the chain is
      *         empty.
      */
+    @Override
     protected List<Principal> getPrincipals(
             List<X509Certificate> certificateChain) {
         if ((certificateChain != null) && (certificateChain.size() > 0)) {

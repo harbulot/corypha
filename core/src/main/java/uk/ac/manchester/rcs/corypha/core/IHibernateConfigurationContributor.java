@@ -33,6 +33,9 @@ package uk.ac.manchester.rcs.corypha.core;
 import org.hibernate.cfg.AnnotationConfiguration;
 
 /**
+ * Interface meant to be used on a {@link CoryphaModule} to contribute to the
+ * configuration of Hibernate.
+ * 
  * @author Bruno Harbulot
  * 
  */

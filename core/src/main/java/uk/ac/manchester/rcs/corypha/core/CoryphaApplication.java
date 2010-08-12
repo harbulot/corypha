@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
   
-Copyright (c) 2007-2010, The University of Manchester, United Kingdom.
+Copyright (c) 2010, The University of Manchester, United Kingdom.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
@@ -34,12 +34,27 @@ import org.restlet.Application;
 import org.restlet.Restlet;
 
 /**
+ * Class to model a Corypha application.
+ * 
  * @author Bruno Harbulot
  * 
  */
 public abstract class CoryphaApplication extends Application {
+    /**
+     * Returns the default URI prefix to use when integrating the application
+     * within the framework.
+     * 
+     * @return the default URI prefix to use when integrating the application
+     *         within the framework.
+     */
     public abstract String getAutoPrefix();
 
+    /**
+     * Returns the {@link Restlet} containing the fixed documents that may be
+     * referenced by the templates.
+     * 
+     * @return null by default.
+     */
     public Restlet getHtdocsRestlet() {
         return null;
     }

@@ -122,18 +122,6 @@
 			<artifactId>jquery-datatables</artifactId>
 		</dependency>
 
-		<!-- jSSLutils -->
-		<dependency>
-			<groupId>org.jsslutils</groupId>
-			<artifactId>jsslutils</artifactId>
-			<version>1.0.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jsslutils</groupId>
-			<artifactId>jsslutils-extra-gsi</artifactId>
-			<version>1.0.6</version>
-		</dependency>
-
 		<!-- XML configuration modules -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>

@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
   
-Copyright (c) 2007-2010, The University of Manchester, United Kingdom.
+Copyright (c) 2010, The University of Manchester, United Kingdom.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
@@ -31,6 +31,8 @@ POSSIBILITY OF SUCH DAMAGE.
 package uk.ac.manchester.rcs.corypha.core;
 
 /**
+ * Abstract class for a Corypha module, as used by the module loader.
+ * 
  * @author Bruno Harbulot
  * 
  */

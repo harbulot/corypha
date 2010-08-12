@@ -33,26 +33,60 @@ package uk.ac.manchester.rcs.corypha.authn;
 import org.restlet.Context;
 import org.restlet.security.Authenticator;
 
+/**
+ * This is a simple container for the authenticator configuration, which may be
+ * loaded using Jetty's XML syntax.
+ * 
+ * @author Bruno Harbulot (Bruno.Harbulot@manchester.ac.uk)
+ * 
+ */
 public class AuthenticatorConfig {
     private Context context;
     private Authenticator authenticator;
 
+    /**
+     * Creates an authenticator configuration container will a null context.
+     * 
+     */
     public AuthenticatorConfig() {
         this(null);
     }
 
+    /**
+     * Creates an authenticator configuration container will a context.
+     * 
+     * @param context
+     *            the {@link Context} to be used to configure the
+     *            {@link Authenticator}.
+     */
     public AuthenticatorConfig(Context context) {
         this.context = context;
     }
 
+    /**
+     * Returns the {@link Authenticator} contained.
+     * 
+     * @return the {@link Authenticator} contained.
+     */
     public Authenticator getAuthenticator() {
         return authenticator;
     }
 
+    /**
+     * Sets the {@link Authenticator} contained.
+     * 
+     * @param authenticator
+     *            the {@link Authenticator} to contain.
+     */
     public void setAuthenticator(Authenticator authenticator) {
         this.authenticator = authenticator;
     }
 
+    /**
+     * Returns the {@link Context} contained.
+     * 
+     * @return the {@link Context} contained.
+     */
     public Context getContext() {
         return context;
     }

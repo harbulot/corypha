@@ -35,6 +35,9 @@ import java.util.List;
 import org.restlet.data.Reference;
 
 /**
+ * Interface meant to be used on a {@link CoryphaModule} to contribute to the
+ * configuration of menus in the user interface.
+ * 
  * @author Bruno Harbulot
  * 
  */
@@ -45,7 +48,9 @@ public interface IMenuProvider {
 
         /**
          * @param label
+         *            HTML
          * @param href
+         *            Reference
          */
         public MenuItem(String label, Reference href) {
             this.label = label;
@@ -54,7 +59,9 @@ public interface IMenuProvider {
 
         /**
          * @param label
+         *            HTML
          * @param href
+         *            URI
          */
         public MenuItem(String label, String href) {
             this.label = label;

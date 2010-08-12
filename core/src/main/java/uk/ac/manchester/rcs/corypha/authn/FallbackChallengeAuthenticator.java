@@ -34,9 +34,17 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.ChallengeScheme;
+import org.restlet.data.ClientInfo;
 import org.restlet.security.ChallengeAuthenticator;
 import org.restlet.security.Verifier;
 
+/**
+ * This is a {@link ChallengeAuthenticator} that is only activated if the
+ * {@link ClientInfo} doesn't already have a user set.
+ * 
+ * @author Bruno Harbulot (Bruno.Harbulot@manchester.ac.uk)
+ * 
+ */
 public class FallbackChallengeAuthenticator extends ChallengeAuthenticator {
 
     public FallbackChallengeAuthenticator(Context context, boolean optional,

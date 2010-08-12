@@ -63,6 +63,9 @@ import uk.ac.manchester.rcs.corypha.authn.AuthenticatorConfig;
 import freemarker.template.Configuration;
 
 /**
+ * This is the root Restlet {@link Application} of Corypha, which sets up all
+ * the sub-applications and the configuration.
+ * 
  * @author Bruno Harbulot
  * 
  */
@@ -88,6 +91,14 @@ public class CoryphaRootApplication extends Application {
 
     private final AnnotationConfiguration hibernateConfiguration = new AnnotationConfiguration();
 
+    /**
+     * Initialises the FreeMarker {@link Configuration} from the URI of a
+     * configuration file (in Jetty's XML configuration format).
+     * 
+     * @param templateConfigXmlUrl
+     *            a URI to be loaded from a {@link ClientResource} (can be CLAP
+     *            URI).
+     */
     private void loadTemplateConfig(String templateConfigXmlUrl) {
         if (templateConfigXmlUrl != null) {
             try {
@@ -119,6 +130,15 @@ public class CoryphaRootApplication extends Application {
         }
     }
 
+    /**
+     * Initialises the Authenticator via an {@link AuthenticatorConfig} loaded
+     * from the URI of a configuration file (in Jetty's XML configuration
+     * format).
+     * 
+     * @param authnConfigXmlUrl
+     *            a URI to be loaded from a {@link ClientResource} (can be CLAP
+     *            URI).
+     */
     private Authenticator loadAuthnConfig(String authnConfigXmlUrl) {
         if (authnConfigXmlUrl != null) {
             try {
@@ -152,6 +172,12 @@ public class CoryphaRootApplication extends Application {
         return null;
     }
 
+    /**
+     * Loads parameters passed via JNDI into the Restlet's {@link Context}.
+     * 
+     * @param prefix
+     *            Prefix to use in java:comp/env/prefix/name.
+     */
     private void loadJndiParameters(String prefix) {
         try {
             javax.naming.Context ctx = new javax.naming.InitialContext();
@@ -206,6 +232,12 @@ public class CoryphaRootApplication extends Application {
         loadJndiParameters("parameters");
     }
 
+    /**
+     * Loads attributes passed via JNDI into the Restlet's {@link Context}.
+     * 
+     * @param prefix
+     *            Prefix to use in java:comp/env/prefix/name.
+     */
     private void loadJndiAttributes(String prefix) {
         try {
             javax.naming.Context ctx = new javax.naming.InitialContext();
@@ -254,6 +286,11 @@ public class CoryphaRootApplication extends Application {
         loadJndiAttributes("attributes");
     }
 
+    /**
+     * Configures Hibernate, first by trying to load from hibernate.cfg.xml on
+     * the classpath, then by using JNDI parameters (e.g.
+     * java:comp/env/hibernate/connection).
+     */
     private void configureHibernate() {
         InputStream hibernateCfgInputStream = AnnotationConfiguration.class
                 .getResourceAsStream("/hibernate.cfg.xml");

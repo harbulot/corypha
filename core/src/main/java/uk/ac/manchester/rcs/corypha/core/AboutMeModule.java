@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
   
-Copyright (c) 2007-2010, The University of Manchester, United Kingdom.
+Copyright (c) 2010, The University of Manchester, United Kingdom.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
@@ -46,6 +46,9 @@ import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 
 /**
+ * This is a small module that displays the information about the user who is
+ * currently using the system (username, roles and principals).
+ * 
  * @author Bruno Harbulot
  * 
  */
@@ -64,7 +67,7 @@ public class AboutMeModule extends CoryphaModule implements
         }
     }
 
-    public static class Application1 extends CoryphaApplication {
+    public static class AboutMeApplication extends CoryphaApplication {
         @Override
         public String getAutoPrefix() {
             return "aboutme/";
@@ -91,14 +94,14 @@ public class AboutMeModule extends CoryphaModule implements
         }
     }
 
-    private final Application1 application1 = new Application1();
+    private final AboutMeApplication application = new AboutMeApplication();
     private final List<MenuItem> menuItems = Collections
             .unmodifiableList(Arrays.asList(new MenuItem[] { new MenuItem(
                     "About me", "/aboutme/") }));
 
     @Override
     public CoryphaApplication getApplication() {
-        return application1;
+        return application;
     }
 
     @Override

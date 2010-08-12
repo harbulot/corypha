@@ -48,6 +48,8 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateModelException;
 
 /**
+ * Helper class to configure the FreeMarker {@link Configuration} object.
+ * 
  * @author Bruno Harbulot
  */
 public class CoryphaTemplateUtil {
@@ -76,8 +78,7 @@ public class CoryphaTemplateUtil {
                 @SuppressWarnings("unchecked")
                 Collection<IMenuProvider> menuProviders = (Collection<IMenuProvider>) context
                         .getAttributes()
-                        .get(
-                                CoryphaRootApplication.MENU_PROVIDERS_CTX_ATTRIBUTE);
+                        .get(CoryphaRootApplication.MENU_PROVIDERS_CTX_ATTRIBUTE);
 
                 CopyOnWriteArrayList<String> menuItemsHtml = new CopyOnWriteArrayList<String>();
                 if (menuProviders != null) {

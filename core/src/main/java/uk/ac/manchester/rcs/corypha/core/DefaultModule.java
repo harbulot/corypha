@@ -49,6 +49,8 @@ import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 
 /**
+ * Module for a default/welcome page.
+ * 
  * @author Bruno Harbulot
  * 
  */
@@ -80,7 +82,7 @@ public class DefaultModule extends CoryphaModule implements
         }
     }
 
-    public static class RootApplication extends CoryphaApplication {
+    public static class DefaultApplication extends CoryphaApplication {
         @Override
         public String getAutoPrefix() {
             return "";
@@ -104,14 +106,14 @@ public class DefaultModule extends CoryphaModule implements
         }
     }
 
-    private final RootApplication rootApplication = new RootApplication();
+    private final DefaultApplication application = new DefaultApplication();
     private final List<MenuItem> menuItems = Collections
             .unmodifiableList(Arrays.asList(new MenuItem[] { new MenuItem(
                     "Home", "") }));
 
     @Override
     public CoryphaApplication getApplication() {
-        return this.rootApplication;
+        return this.application;
     }
 
     @Override

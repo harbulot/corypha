@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------
   
-Copyright (c) 2007-2010, The University of Manchester, United Kingdom.
+Copyright (c) 2010, The University of Manchester, United Kingdom.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without 
@@ -28,13 +28,15 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------*/
-package uk.ac.manchester.rcs.corypha.core;
+package uk.ac.manchester.rcs.corypha.utils;
 
 import java.sql.Types;
 
 import org.hibernate.dialect.DerbyDialect;
 
 /**
+ * Extension of Hibernate's {@link DerbyDialect} to support CLOBs and BLOBs.
+ * 
  * @author Bruno Harbulot
  * 
  */

@@ -31,6 +31,9 @@ POSSIBILITY OF SUCH DAMAGE.
 package uk.ac.manchester.rcs.corypha.core;
 
 /**
+ * Interface meant to be used on a {@link CoryphaModule} to say that this module
+ * provides a {@link CoryphaApplication} to be loaded.
+ * 
  * @author Bruno Harbulot
  * 
  */
