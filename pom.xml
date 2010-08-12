@@ -68,6 +68,11 @@
 					<artifactId>maven-resources-plugin</artifactId>
 					<version>2.4.2</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -87,10 +92,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.3</version>
-				<configuration>
-					<configLocation>checkstyle-eclipse.xml</configLocation>
-				</configuration>
+				<version>2.5</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
