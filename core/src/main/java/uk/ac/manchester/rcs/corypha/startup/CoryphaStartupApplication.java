@@ -70,7 +70,9 @@ public class CoryphaStartupApplication {
                                 authnConfigXmlUrl));
                     }
                 } finally {
-                    entity.release();
+                    if (entity != null) {
+                        entity.release();
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error(String.format(

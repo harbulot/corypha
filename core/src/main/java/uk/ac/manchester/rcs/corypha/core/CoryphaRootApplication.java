@@ -45,6 +45,7 @@ import javax.naming.NoInitialContextException;
 import org.eclipse.jetty.xml.XmlConfiguration;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.restlet.Application;
+import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
@@ -120,7 +121,9 @@ public class CoryphaRootApplication extends Application {
                                 templateConfigXmlUrl));
                     }
                 } finally {
-                    entity.release();
+                    if (entity != null) {
+                        entity.release();
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error(String.format(
@@ -161,7 +164,9 @@ public class CoryphaRootApplication extends Application {
                                 authnConfigXmlUrl));
                     }
                 } finally {
-                    entity.release();
+                    if (entity != null) {
+                        entity.release();
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error(String.format(
@@ -383,16 +388,7 @@ public class CoryphaRootApplication extends Application {
             LOGGER.info(String.format("Using base reference: %s", baseUrl));
         }
 
-        Router router = new Router(getContext()) {
-            @Override
-            public void handle(Request request, Response response) {
-                if (baseUrl == null) {
-                    request.getAttributes().put(BASE_URL_REQUEST_ATTR,
-                            request.getRootRef().toString() + "/");
-                }
-                super.handle(request, response);
-            }
-        };
+        Router router = new BaseSetterRouter(getContext(), baseUrl);
         router.setDefaultMatchingMode(Router.MODE_BEST_MATCH);
 
         Map<String, CoryphaApplication> prefixToCmsApps = new HashMap<String, CoryphaApplication>();
@@ -519,6 +515,24 @@ public class CoryphaRootApplication extends Application {
         if (cmsModule instanceof IHibernateConfigurationContributor) {
             ((IHibernateConfigurationContributor) cmsModule)
                     .configureHibernate(this.hibernateConfiguration);
+        }
+    }
+
+    private static final class BaseSetterRouter extends Router {
+        private final String baseUrl;
+
+        private BaseSetterRouter(Context context, String baseUrl) {
+            super(context);
+            this.baseUrl = baseUrl;
+        }
+
+        @Override
+        public void handle(Request request, Response response) {
+            if (baseUrl == null) {
+                request.getAttributes().put(BASE_URL_REQUEST_ATTR,
+                        request.getRootRef().toString() + "/");
+            }
+            super.handle(request, response);
         }
     }
 }
