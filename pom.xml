@@ -10,7 +10,7 @@
 	<properties>
 		<corypha.version>0.0.2-SNAPSHOT</corypha.version>
 		<build.compiler.fork>true</build.compiler.fork>
-		<restlet.version>2.0-RC4</restlet.version>
+		<restlet.version>2.0-20100813.210104-6786</restlet.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -261,7 +261,7 @@
 			<dependency>
 				<groupId>org.restlet.jse</groupId>
 				<artifactId>org.restlet.ext.ssl</artifactId>
-				<version>2.0.0</version>
+				<version>${restlet.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.restlet.jee</groupId>
