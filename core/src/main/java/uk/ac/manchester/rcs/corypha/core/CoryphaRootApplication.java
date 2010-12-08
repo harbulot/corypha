@@ -55,6 +55,7 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.Directory;
 import org.restlet.routing.Filter;
 import org.restlet.routing.Router;
+import org.restlet.routing.Template;
 import org.restlet.security.Authenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -389,7 +390,7 @@ public class CoryphaRootApplication extends Application {
         }
 
         Router router = new BaseSetterRouter(getContext(), baseUrl);
-        router.setDefaultMatchingMode(Router.MODE_BEST_MATCH);
+        router.setDefaultMatchingMode(Template.MODE_STARTS_WITH);
 
         Map<String, CoryphaApplication> prefixToCmsApps = new HashMap<String, CoryphaApplication>();
 
